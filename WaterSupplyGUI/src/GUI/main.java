@@ -149,16 +149,16 @@ public class main extends JFrame {
 
         setDistance = new JButton("Set Distance");
         setDistance.setFont(new Font("Bell MT", Font.BOLD, 14));
-        setDistance.setBackground(new Color(238, 209, 128));
-        SaveData = new JButton("Save Data");
+        setDistance.setBackground(new Color(102,102,102));
+        SaveData = new JButton("Save Data"); 
         SaveData.setFont(new Font("Bell MT", Font.BOLD, 14));
-        SaveData.setBackground(new Color(238, 209, 128));
+        SaveData.setBackground(new Color(102,102,102));
         calculate = new JButton("Short Distance");
         calculate.setFont(new Font("Bell MT", Font.BOLD, 14));
-        calculate.setBackground(new Color(238, 209, 128));
+        calculate.setBackground(new Color(102,102,102));
         start = new JButton("Begin");
         start.setFont(new Font("Bell MT", Font.BOLD, 25));
-        start.setBackground(new Color(232, 170, 66));
+        start.setBackground(new Color(102,102,102));
         reset = new JButton("Reset");
         reset.setFont(new Font("Bell MT", Font.BOLD, 25));
         reset.setHorizontalAlignment(SwingConstants.CENTER);

@@ -8,139 +8,80 @@
 package Week6;
 
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
-class RandomUniqueEqualizer {
-
-    String[] leftSide;
-    String rightSide;
-    HashMap<String, String> mapper = new HashMap<String, String>();
-
-    RandomUniqueEqualizer(String[] leftSide, String rightSide) {
-
-        this.leftSide = leftSide;
-        this.rightSide = rightSide;
+class Week6 {
+    public boolean isSolvable(String[] words, String result) {
+        Map<Character, Integer> letterDigitMap = new HashMap<Character, Integer>();
+        Set<Character> leadingSet = new HashSet<Character>();
+        int resultLength = result.length();
+        for (String word : words) {
+            if (word.length() > resultLength)
+                return false;
+            if (word.length() > 1)
+                leadingSet.add(word.charAt(0));
+        }
+        if (result.length() > 1)
+            leadingSet.add(result.charAt(0));
+        boolean[] used = new boolean[10];
+        int[] carry = new int[resultLength + 1];
+        return depthFirstSearch(words, result, letterDigitMap, leadingSet, used, carry, 0, 0);
     }
 
-    boolean processor() {
-
-        String checkval1 = String.join("", leftSide);
-        String checkvalFinal = checkval1 + rightSide;
-        // System.out.println(checkval);
-
-        String uniqueCheck = uniqueFinder(checkvalFinal, checkval1.charAt(checkval1.length() - 1));
-
-        int leftSum = leftItterSum();
-
-        String rightSum = "";
-
-        for (int i = 0; i < rightSide.length(); i++) {
-            rightSum += mapper.get("" + rightSide.charAt(i));
-        }
-
-        // System.out.println(rightSum);
-        // System.out.println(leftSum);
-
-        if (leftSum == Integer.parseInt(rightSum)) {
-            return true;
-        }
-
-        return false;
-
-    }
-
-    int leftItterSum() {
-
-        // int lastCheckIter = 0;
-        int unitsItter = 0;
-        String[] units = new String[leftSide.length];
-        int leftTotal = 0;
-
-        // if(leftSide[lastCheckIter].charAt(i) ==
-        // leftSide[lastCheckIter].charAt(leftSide[lastCheckIter].length())){
-        // unitsItter++;
-        // }
-
-        for (int i = 0; i < leftSide.length; i++) {
-
-            units[unitsItter] = "";
-
-            for (int j = 0; j < leftSide[i].length(); j++) {
-
-                // System.out.println(mapper.get("H"));
-                units[unitsItter] += mapper.get("" + leftSide[i].charAt(j));
-
-            }
-            leftTotal += Integer.parseInt(units[unitsItter]);
-            unitsItter++;
-
-        }
-
-        // System.out.println(units[0]);
-        // System.out.println(units[1]);
-        // System.out.println(units[2]);
-
-        // System.out.println(leftTotal);
-
-        return leftTotal;
-    }
-
-    String uniqueFinder(String a, char leftend) {
-
-        int len = 0;
-        char[] passer = new char[a.length()];
-
-        for (int i = 0; i < a.length(); i++) {
-            boolean push = false;
-            for (int j = 0; j < a.length(); j++) {
-                if (i >= j) {
-                    if (i == a.length() - 1) {
-                        push = true;
-                        break;
+    public boolean depthFirstSearch(String[] words, String result, Map<Character, Integer> letterDigitMap, Set<Character> leadingSet, boolean[] used, int[] carry, int position, int wordIndex) {
+        if (position == result.length())
+            return carry[position] == 0;
+        else if (wordIndex < words.length) {
+            String word = words[wordIndex];
+            int wordLength = word.length();
+            if (wordLength <= position || letterDigitMap.containsKey(word.charAt(wordLength - position - 1)))
+                return depthFirstSearch(words, result, letterDigitMap, leadingSet, used, carry, position, wordIndex + 1);
+            else {
+                char letter = word.charAt(wordLength - position - 1);
+                int start = leadingSet.contains(letter) ? 1 : 0;
+                for (int i = start; i <= 9; i++) {
+                    if (!used[i]) {
+                        used[i] = true;
+                        letterDigitMap.put(letter, i);
+                        boolean next = depthFirstSearch(words, result, letterDigitMap, leadingSet, used, carry, position, wordIndex + 1);
+                        used[i] = false;
+                        letterDigitMap.remove(letter);
+                        if (next)
+                            return true;
                     }
-                    continue;
-                }
-
-                if (a.charAt(i) == a.charAt(j)) {
-                    push = false;
-                    break;
-                } else if (a.charAt(i) != a.charAt(j)) {
-                    push = true;
                 }
             }
-            if (push) {
-                passer[len] = a.charAt(i);
-                push = false;
-                len++;
+            return false;
+        } else {
+            int remain = carry[position];
+            for (String word : words) {
+                if (word.length() > position) {
+                    char letter = word.charAt(word.length() - position - 1);
+                    remain += letterDigitMap.get(letter);
+                }
             }
+            carry[position + 1] = remain / 10;
+            remain %= 10;
+            char letter = result.charAt(result.length() - position - 1);
+            if (letterDigitMap.containsKey(letter) && letterDigitMap.get(letter) == remain)
+                return depthFirstSearch(words, result, letterDigitMap, leadingSet, used, carry, position + 1, 0);
+            else if (!letterDigitMap.containsKey(letter) && !used[remain] && !(leadingSet.contains(letter) && remain == 0)) {
+                used[remain] = true;
+                letterDigitMap.put(letter, remain);
+                boolean next = depthFirstSearch(words, result, letterDigitMap, leadingSet, used, carry, position + 1, 0);
+                used[remain] = false;
+                letterDigitMap.remove(letter);
+                return next;
+            } else
+                return false;
         }
-
-        String combined = "";
-        int itter = 0;
-
-        String[] leftRightSum = new String[2];
-
-        for (int i = 0; i < len; i++) {
-            combined += passer[i];
-            mapper.put("" + passer[i], "" + i);
-            // if (passer[i] == leftend) {
-            // itter++;
-            // }
-            // leftRightSum[itter] += mapper.get("" + passer[i]);
-
-        }
-
-        // System.out.println(combined);
-
-        return combined;
-        // return leftRightSum;
-
     }
-
     public static void main(String[] args) {
-
-        String[] leftInput = { "THER", "MOL", "NIS" };
-
-        System.out.println(new RandomUniqueEqualizer(leftInput, "HRLI").processor());
+    	String word[] = new String[] {"THIS","IS","TOO"};
+    	String result = "FUNNY";
+    	Week6 obj = new Week6();
+    	System.out.println(obj.isSolvable(word, result));
     }
-
 }
